@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      try {
+        if (localStorage.getItem("theme") === "light") document.documentElement.classList.add("light");
+      } catch (e) {}
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#050908" />
+    <meta
+      name="description"
+      content="Portfolio of Eben Ezer Limbong, a Telecommunication Engineering student at Telkom University focused on machine learning and communication systems."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Eben Ezer Limbong | Portfolio" />
+    <meta
+      property="og:description"
+      content="Machine learning projects, communication systems, and more by Eben Ezer Limbong."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <title>Eben Ezer Limbong | Portfolio</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

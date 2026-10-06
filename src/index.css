@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+/* ---------- Theme tokens ---------- */
+:root {
+  --bg: #050908;
+  --card: #0a1210;
+  --card-hover: #0d1714;
+  --inset: #050908;
+  --line: #18352c;
+  --ink: #f5f7f6;
+  --muted: #94a3a0;
+  --deep: #064e3b;
+  --accent-fg: #10b981;
+  --accent-hi: #34d399;
+  --cursor-hover: #f5f7f6;
+  --glow: rgba(16, 185, 129, 0.14);
+  --glow-2: rgba(6, 78, 59, 0.35);
+  --dot: rgba(148, 163, 160, 0.16);
+  color-scheme: dark;
+}
+
+:root.light {
+  --bg: #f4f8f6;
+  --card: #ffffff;
+  --card-hover: #f0f7f3;
+  --inset: #eaf2ee;
+  --line: #cbddd5;
+  --ink: #0b1512;
+  --muted: #4a5e58;
+  --deep: #a7f3d0;
+  --accent-fg: #047857;
+  --accent-hi: #065f46;
+  --cursor-hover: #064e3b;
+  --glow: rgba(16, 185, 129, 0.16);
+  --glow-2: rgba(167, 243, 208, 0.55);
+  --dot: rgba(4, 120, 87, 0.14);
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-card-hover: var(--card-hover);
+  --color-inset: var(--inset);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-deep: var(--deep);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-hi: var(--accent-hi);
+}
+
+/* ---------- Base ---------- */
+:root {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--bg);
+}
+
+a { text-decoration: none; }
+::selection { background: #10b981; color: #020604; }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-fg); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation: none !important; transition: none !important; }
+  .hero-in, .reveal { opacity: 1 !important; transform: none !important; }
+}
+
+/* Custom cursor: hide the system cursor only on mouse devices */
+html.custom-cursor,
+html.custom-cursor * {
+  cursor: none !important;
+}
+
+/* Keyboard focus */
+:focus-visible {
+  outline: 2px solid var(--accent-fg);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ---------- Motion & effects ---------- */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(26px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes shine { to { background-position: 200% center; } }
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+/* Hero entrance (staggered with --d) */
+.hero-in {
+  opacity: 0;
+  animation: fade-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--d, 0ms);
+}
+
+/* Reveal on scroll */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--d, 0ms);
+}
+.reveal.in { opacity: 1; transform: none; }
+
+/* Animated gradient text */
+.grad-text {
+  background: linear-gradient(90deg, var(--accent-fg), var(--accent-hi), var(--accent-fg));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shine 6s linear infinite;
+}
+
+/* Floating badges */
+.float-a { animation: float 6s ease-in-out infinite; }
+.float-b { animation: float 7s ease-in-out infinite 1.2s; }
+
+/* Card spotlight that follows the cursor */
+.spotlight { position: relative; }
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(16, 185, 129, 0.14), transparent 60%);
+}
+.spotlight:hover::before { opacity: 1; }

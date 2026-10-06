@@ -1,0 +1,651 @@
+import { useEffect, useRef, useState } from "react";
+import {
+  ArrowUpRight,
+  Award,
+  Download,
+  ExternalLink,
+  FolderOpen,
+  GraduationCap,
+  Mail,
+  MapPin,
+  Menu,
+  Moon,
+  Sun,
+  Trophy,
+  User,
+  X,
+} from "lucide-react";
+import {
+  education,
+  experiences,
+  projects,
+  achievements,
+  certifications,
+  skillGroups,
+  links,
+} from "./data/portfolio";
+
+/* ---------- Brand icons (inline SVG, no extra library) ---------- */
+const GithubIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+  </svg>
+);
+const LinkedinIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+  </svg>
+);
+const InstagramIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+    <rect x="3" y="3" width="18" height="18" rx="5" />
+    <circle cx="12" cy="12" r="4" />
+    <circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" />
+  </svg>
+);
+
+/* ---------- Shared styles ---------- */
+const wrap = "mx-auto w-full max-w-[1300px] px-6 md:px-10";
+const sectionCls = "scroll-mt-20 border-t border-line/60 py-24 md:py-32";
+const eyebrow = "text-xs font-semibold uppercase tracking-[0.3em] text-accent-fg";
+const heading = "mt-4 text-3xl font-bold tracking-tight text-ink md:text-5xl";
+const card =
+  "rounded-2xl border border-line bg-card transition-all duration-300 hover:border-[#10B981]/40 hover:bg-card-hover";
+
+const navLinks = [
+  ["About", "#about"],
+  ["Education & Experience", "#education"],
+  ["Projects", "#projects"],
+  ["Achievements", "#achievements"],
+  ["Skills", "#skills"],
+  ["Contact", "#contact"],
+];
+
+const socials = [
+  { href: links.github, label: "GitHub", Icon: GithubIcon },
+  { href: links.linkedin, label: "LinkedIn", Icon: LinkedinIcon },
+  { href: links.instagram, label: "Instagram", Icon: InstagramIcon },
+];
+
+function SocialRow({ size = 18, withEmail = false }) {
+  const cls =
+    "flex h-11 w-11 items-center justify-center rounded-full border border-line text-muted transition hover:-translate-y-0.5 hover:border-[#10B981]/50 hover:text-accent-hi";
+  return (
+    <>
+      {socials.map(({ href, label, Icon }) => (
+        <a key={label} href={href} target="_blank" rel="noreferrer" aria-label={label} className={cls}>
+          <Icon size={size} />
+        </a>
+      ))}
+      {withEmail && (
+        <a href={links.email} aria-label="Email" className={cls}>
+          <Mail size={size} />
+        </a>
+      )}
+    </>
+  );
+}
+
+function Timeline({ children }) {
+  return (
+    <div className="relative">
+      <div className="absolute bottom-2 left-[5px] top-2 w-px bg-line" />
+      <div className="space-y-6">{children}</div>
+    </div>
+  );
+}
+
+function TimelineItem({ meta, title, sub, text }) {
+  return (
+    <div className="relative pl-9">
+      <span className="absolute left-0 top-1.5 h-[11px] w-[11px] rounded-full bg-[#10B981] shadow-[0_0_12px_#10B981]" />
+      {meta && <p className="text-xs font-medium text-muted">{meta}</p>}
+      <h3 className="mt-1 text-lg font-semibold text-ink">{title}</h3>
+      {sub && <p className="mt-1 text-sm text-accent-fg">{sub}</p>}
+      {text && <p className="mt-3 max-w-md text-sm leading-7 text-muted">{text}</p>}
+    </div>
+  );
+}
+
+/* ---------- Custom cursor: emerald pointer + soft glow trail (mouse only) ---------- */
+function CustomCursor() {
+  const arrow = useRef(null);
+  const glow = useRef(null);
+
+  useEffect(() => {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    document.documentElement.classList.add("custom-cursor");
+
+    let mx = -100, my = -100, gx = -100, gy = -100;
+    let hovering = false, pressed = false, visible = false, raf;
+
+    const show = (v) => {
+      visible = v;
+      arrow.current.style.opacity = v ? "1" : "0";
+      glow.current.style.opacity = v ? "1" : "0";
+    };
+    const onMove = (e) => {
+      mx = e.clientX;
+      my = e.clientY;
+      if (!visible) { gx = mx; gy = my; show(true); }
+      hovering = !!(e.target.closest && e.target.closest("a, button, [role='button']"));
+    };
+    const onDown = () => { pressed = true; };
+    const onUp = () => { pressed = false; };
+    const onLeave = () => show(false);
+
+    const tick = () => {
+      gx += (mx - gx) * 0.12;
+      gy += (my - gy) * 0.12;
+      const as = pressed ? 0.88 : hovering ? 1.3 : 1;
+      arrow.current.style.transform = `translate3d(${mx - 2}px, ${my - 2}px, 0) scale(${as})`;
+      arrow.current.style.color = hovering ? "var(--cursor-hover)" : "#10B981";
+      glow.current.style.transform = `translate3d(${gx}px, ${gy}px, 0) translate(-50%, -50%) scale(${hovering ? 1.9 : 1})`;
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mousedown", onDown);
+    window.addEventListener("mouseup", onUp);
+    document.documentElement.addEventListener("mouseleave", onLeave);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mousedown", onDown);
+      window.removeEventListener("mouseup", onUp);
+      document.documentElement.removeEventListener("mouseleave", onLeave);
+      document.documentElement.classList.remove("custom-cursor");
+    };
+  }, []);
+
+  return (
+    <>
+      <div
+        ref={glow}
+        aria-hidden="true"
+        className="pointer-events-none fixed left-0 top-0 z-[9998] h-14 w-14 rounded-full opacity-0 transition-opacity duration-200"
+        style={{ background: "radial-gradient(circle, rgba(16,185,129,0.32), transparent 70%)" }}
+      />
+      <svg
+        ref={arrow}
+        aria-hidden="true"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        className="pointer-events-none fixed left-0 top-0 z-[9999] opacity-0 transition-[opacity,color] duration-150"
+        style={{ transformOrigin: "2px 2px", filter: "drop-shadow(0 0 6px rgba(16,185,129,0.6))" }}
+      >
+        <path
+          d="M2 2 L2 18 L6.5 13.8 L9.6 21 L12.4 19.8 L9.3 12.8 L15.5 12.5 Z"
+          fill="currentColor"
+          style={{ stroke: "var(--bg)" }}
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </>
+  );
+}
+
+export default function App() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
+  const [active, setActive] = useState("");
+  const [theme, setTheme] = useState(() =>
+    typeof document !== "undefined" && document.documentElement.classList.contains("light")
+      ? "light"
+      : "dark"
+  );
+
+  const toggleTheme = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    document.documentElement.classList.toggle("light", next === "light");
+    try {
+      localStorage.setItem("theme", next);
+    } catch (e) {
+      /* storage unavailable, ignore */
+    }
+  };
+
+  useEffect(() => {
+    const els = navLinks
+      .map(([, href]) => document.getElementById(href.slice(1)))
+      .filter(Boolean);
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && setActive(e.target.id)),
+      { rootMargin: "-40% 0px -55% 0px" }
+    );
+    els.forEach((el) => io.observe(el));
+    const onScroll = () => { if (window.scrollY < 300) setActive(""); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => { io.disconnect(); window.removeEventListener("scroll", onScroll); };
+  }, []);
+
+  return (
+    <div className="min-h-screen text-ink">
+      <CustomCursor />
+      {/* NAVBAR */}
+      <header className="sticky top-0 z-50 border-b border-line/60 bg-bg/80 backdrop-blur-xl">
+        <nav className="mx-auto flex max-w-[1300px] items-center justify-between px-6 py-4 md:px-10" aria-label="Main">
+          <a href="#home" className="text-base font-bold tracking-wide">
+            Eben Ezer Limbong<span className="text-accent-fg">.</span>
+          </a>
+
+          <ul className="hidden items-center gap-7 lg:flex">
+            {navLinks.map(([name, href]) => (
+              <li key={name}>
+                <a
+                  href={href}
+                  className={`text-sm transition-colors hover:text-accent-hi ${
+                    active === href.slice(1) ? "text-accent-hi" : "text-muted"
+                  }`}
+                >
+                  {name}
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-line text-muted transition hover:border-[#10B981]/50 hover:text-accent-hi"
+            >
+              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label="Toggle navigation"
+              aria-expanded={menuOpen}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-line lg:hidden"
+            >
+              {menuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
+        </nav>
+
+        {menuOpen && (
+          <div className="border-t border-line/60 bg-card px-6 py-4 lg:hidden">
+            <ul className="flex flex-col gap-1">
+              {navLinks.map(([name, href]) => (
+                <li key={name}>
+                  <a
+                    href={href}
+                    onClick={() => setMenuOpen(false)}
+                    className="block rounded-xl px-3 py-3 text-sm text-muted hover:bg-deep/20 hover:text-accent-hi"
+                  >
+                    {name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </header>
+
+      <main id="home">
+        {/* HERO */}
+        <section className="relative flex min-h-[calc(100vh-65px)] items-center overflow-hidden">
+          <div className="pointer-events-none absolute -left-20 top-10 h-[480px] w-[480px] rounded-full bg-deep/30 blur-[120px]" />
+
+          <div className={`${wrap} relative z-10 py-20`}>
+            <h1 className="max-w-4xl text-5xl font-bold leading-[1.05] tracking-[-0.03em] md:text-7xl lg:text-[5.5rem]">
+              Machine Learning &amp;
+              <br />
+              Internet of Things <span className="text-accent-fg">Enthusiast.</span>
+            </h1>
+
+            <p className="mt-8 text-xl font-medium text-ink/80 md:text-2xl">
+              Telecommunication Engineering Student at Telkom University.
+            </p>
+
+            <p className="mt-5 max-w-2xl text-base leading-8 text-muted md:text-lg">
+              I am a Telecommunication Engineering student interested in Internet of Things, Machine
+              Learning, networking, communication systems, and intelligent technology.
+            </p>
+
+            <div className="mt-10 flex flex-wrap gap-4">
+              <a
+                href="#projects"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#10B981] px-6 py-3.5 text-sm font-semibold text-black transition hover:-translate-y-0.5 hover:bg-[#34D399]"
+              >
+                View Projects <ArrowUpRight size={17} />
+              </a>
+              <a
+                href={links.cv}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-xl border border-line bg-card px-6 py-3.5 text-sm font-semibold transition hover:-translate-y-0.5 hover:border-[#10B981]/50 hover:text-accent-hi"
+              >
+                <Download size={17} /> Download CV
+              </a>
+            </div>
+
+            <div className="mt-10 flex items-center gap-3">
+              <SocialRow />
+            </div>
+          </div>
+
+          <a
+            href="#about"
+            className="absolute bottom-7 left-1/2 -translate-x-1/2 text-xs tracking-wide text-muted transition hover:text-accent-hi"
+          >
+            Scroll to explore ↓
+          </a>
+        </section>
+
+        {/* ABOUT */}
+        <section id="about" className={sectionCls}>
+          <div className={`${wrap} grid gap-16 lg:grid-cols-[1.15fr_0.85fr] lg:items-center`}>
+            <div>
+              <p className={eyebrow}>About Me</p>
+              <h2 className="mt-4 text-4xl font-bold tracking-tight text-ink sm:text-5xl lg:text-6xl">
+                Eben Ezer Limbong
+              </h2>
+              <p className="mt-4 text-xl font-medium text-accent-fg md:text-2xl">
+                Turning signals into intelligent systems.
+              </p>
+
+              <p className="mt-6 max-w-xl text-base leading-8 text-muted">
+                I&apos;m a Telecommunication Engineering student at Telkom University. Most of my time
+                goes into machine learning and studying communication systems with MATLAB. On the
+                side, I enjoy assembling small IoT projects.
+              </p>
+
+              <div className="mt-10 grid grid-cols-3 divide-x divide-line overflow-hidden rounded-2xl border border-line bg-card">
+                {[
+                  [projects.length, "Projects"],
+                  [achievements.length, "Achievements"],
+                  [certifications.length, "Certifications"],
+                ].map(([n, l]) => (
+                  <div key={l} className="px-3 py-5 text-center">
+                    <p className="text-3xl font-bold text-ink">{n}</p>
+                    <p className="mt-1 text-xs text-muted">{l}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mx-auto w-full max-w-[380px]">
+              <div className="relative">
+                <div className="absolute -inset-4 rounded-[2.2rem] bg-[#10B981]/10 blur-2xl" />
+                <div className="absolute inset-0 translate-x-3 -translate-y-3 rounded-[2rem] border border-[#10B981]/25" />
+
+                <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-[#10B981]/25 bg-card">
+                  {imgError ? (
+                    <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-muted">
+                      <User size={56} strokeWidth={1.2} />
+                      <span className="text-xs">Add /public/profile.jpg</span>
+                    </div>
+                  ) : (
+                    <>
+                      <img
+                        src="/profile.jpg"
+                        alt="Eben Ezer Limbong"
+                        onError={() => setImgError(true)}
+                        className="h-full w-full object-cover object-[center_20%]"
+                        style={{ filter: "saturate(0.8) contrast(1.06) brightness(0.92)" }}
+                      />
+                      {/* emerald tint so the photo blends with the site lighting */}
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0"
+                        style={{ background: "#10B981", mixBlendMode: "soft-light", opacity: 0.4 }}
+                      />
+                      {/* vignette + fade into the dark background */}
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0"
+                        style={{
+                          background:
+                            "radial-gradient(ellipse at 50% 35%, transparent 50%, color-mix(in srgb, var(--bg) 55%, transparent) 100%), linear-gradient(to top, color-mix(in srgb, var(--bg) 80%, transparent) 0%, transparent 40%)",
+                        }}
+                      />
+                    </>
+                  )}
+                </div>
+
+                <div className="absolute -left-5 top-10 flex items-center gap-2.5 rounded-2xl border border-line bg-card/95 px-4 py-3 backdrop-blur">
+                  <MapPin size={16} className="text-accent-fg" />
+                  <p className="text-sm font-semibold">Bandung, Indonesia</p>
+                </div>
+
+                <div className="absolute -bottom-5 -left-5 flex items-center gap-3 rounded-2xl border border-line bg-card/95 px-4 py-3 backdrop-blur">
+                  <GraduationCap size={20} className="text-accent-fg" />
+                  <div>
+                    <p className="text-xs text-muted">Studying at</p>
+                    <p className="text-sm font-semibold">Telkom University</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* EDUCATION + EXPERIENCE */}
+        <section id="education" className={sectionCls}>
+          <div className={`${wrap} grid gap-16 lg:grid-cols-2`}>
+            <div>
+              <p className={eyebrow}>Background</p>
+              <h2 className={heading}>Education</h2>
+              <div className="mt-10">
+                <Timeline>
+                  {education.map((e) => (
+                    <TimelineItem key={e.title} meta={e.period} title={e.title} sub={e.subtitle} />
+                  ))}
+                </Timeline>
+              </div>
+            </div>
+
+            <div id="experience" className="scroll-mt-20">
+              <p className={eyebrow}>Journey</p>
+              <h2 className={heading}>Experience</h2>
+              <div className="mt-10">
+                <Timeline>
+                  {experiences.map((x) => (
+                    <TimelineItem
+                      key={`${x.title}-${x.year}`}
+                      meta={x.year}
+                      title={x.title}
+                      sub={x.organization}
+                      text={x.description}
+                    />
+                  ))}
+                </Timeline>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* PROJECTS */}
+        <section id="projects" className={sectionCls}>
+          <div className={wrap}>
+            <p className={eyebrow}>Selected Work</p>
+            <h2 className={heading}>Projects</h2>
+            <p className="mt-5 max-w-2xl text-base leading-8 text-muted">
+              Selected projects combining IoT, Machine Learning, data, and communication technology.
+            </p>
+
+            <div className="mt-12 grid gap-5 md:grid-cols-2">
+              {projects.map((p) => {
+                const primary = p.demo || p.github || p.drive;
+                const extra = [
+                  p.demo && ["Live Demo", p.demo, ExternalLink],
+                  p.github && ["Source Code", p.github, GithubIcon],
+                  p.drive && ["Project Files", p.drive, FolderOpen],
+                ].filter(Boolean);
+
+                return (
+                  <article
+                    key={p.id}
+                    className="group relative flex flex-col overflow-hidden rounded-3xl border border-line bg-card p-7 transition-all duration-300 hover:-translate-y-1 hover:border-[#10B981]/50 hover:shadow-[0_0_40px_-12px_#10B981]"
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-fg">{p.category}</span>
+                      <span className="text-sm text-muted">{p.year}</span>
+                    </div>
+
+                    <h3 className="mt-6 text-2xl font-semibold tracking-tight md:text-3xl">{p.title}</h3>
+                    <p className="mt-1 text-base text-muted">{p.subtitle}</p>
+                    <p className="mt-4 text-sm leading-7 text-muted/90">{p.description}</p>
+
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      {p.technologies.map((t) => (
+                        <span key={t} className="rounded-full border border-line bg-inset px-3 py-1 text-xs text-muted">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5 mt-7">
+                      {primary && (
+                        <a
+                          href={primary}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-sm font-medium text-ink transition hover:text-accent-hi"
+                        >
+                          Explore Project →
+                        </a>
+                      )}
+                      <div className="flex flex-wrap gap-2">
+                        {extra.map(([name, href, Icon]) => (
+                          <a
+                            key={name}
+                            href={href}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-xs text-muted transition hover:border-[#10B981]/50 hover:text-accent-hi"
+                          >
+                            <Icon size={13} />
+                            {name}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ACHIEVEMENTS + CERTIFICATIONS */}
+        <section id="achievements" className={sectionCls}>
+          <div className={wrap}>
+            <p className={eyebrow}>Recognition</p>
+            <h2 className={heading}>Achievements &amp; Certifications</h2>
+
+            <div className="mt-12 grid gap-5 md:grid-cols-2">
+              {achievements.map((a, i) => (
+                <article
+                  key={a.id}
+                  className="group relative overflow-hidden rounded-3xl border border-line bg-card p-8 transition-all duration-300 hover:-translate-y-1 hover:border-[#10B981]/50 hover:shadow-[0_0_40px_-12px_#10B981]"
+                >
+                  <span className="pointer-events-none absolute -right-2 -top-6 select-none text-[9rem] font-bold leading-none text-accent-fg/[0.06]">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <div className="relative">
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#10B981]/25 bg-deep/30 text-accent-fg">
+                        <Trophy size={20} />
+                      </span>
+                      <span className="rounded-full border border-line bg-inset px-3 py-1 text-xs text-muted">
+                        {a.year}
+                      </span>
+                    </div>
+                    <h3 className="mt-8 text-2xl font-semibold tracking-tight">{a.title}</h3>
+                    <p className="mt-2 text-sm text-accent-fg">{a.organization}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <p className={`${eyebrow} mt-16`}>Certifications</p>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {certifications.map((c) => (
+                <div key={c.id} className={`${card} flex flex-col p-5`}>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-inset text-accent-fg">
+                      <Award size={18} />
+                    </span>
+                    <span className="text-xs text-muted">{c.year}</span>
+                  </div>
+                  <h3 className="mt-5 font-semibold leading-snug">{c.title}</h3>
+                  <p className="mt-auto pt-2 text-sm text-accent-fg">{c.issuer}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SKILLS */}
+        <section id="skills" className={sectionCls}>
+          <div className={wrap}>
+            <p className={eyebrow}>Toolkit</p>
+            <h2 className={heading}>Skills</h2>
+
+            <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {skillGroups.map((g) => (
+                <div key={g.title} className={`${card} p-6`}>
+                  <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-fg">{g.title}</h3>
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {g.items.map((s) => (
+                      <span
+                        key={s}
+                        className="rounded-full border border-line bg-inset px-3 py-1 text-xs text-muted transition hover:border-[#10B981]/40 hover:text-accent-hi"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CONTACT */}
+        <section id="contact" className={sectionCls}>
+          <div className={wrap}>
+            <div className="relative overflow-hidden rounded-[2rem] border border-line bg-card px-6 py-20 text-center md:px-12">
+              <div className="pointer-events-none absolute left-1/2 top-0 h-64 w-[480px] -translate-x-1/2 rounded-full bg-[#10B981]/10 blur-[100px]" />
+              <div className="relative">
+                <p className={eyebrow}>Get In Touch</p>
+                <h2 className="mt-4 text-4xl font-bold tracking-tight md:text-6xl">LET&apos;S CONNECT</h2>
+                <p className="mx-auto mt-6 max-w-xl text-base leading-8 text-muted">
+                  Have a project or idea? Let&apos;s build something.
+                </p>
+
+                <div className="mt-10 flex items-center justify-center gap-3">
+                  <SocialRow size={20} withEmail />
+                </div>
+
+                <a
+                  href={links.email}
+                  className="mt-8 inline-block text-sm text-muted transition hover:text-accent-hi"
+                >
+                  ebenzr25@gmail.com
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* FOOTER */}
+      <footer className="border-t border-line/60">
+        <div className="mx-auto flex max-w-[1300px] flex-col items-center justify-between gap-2 px-6 py-8 text-xs text-muted md:flex-row md:px-10">
+          <p className="font-semibold text-ink">Eben Ezer Limbong</p>
+          <p>© 2026 Eben Ezer Limbong</p>
+        </div>
+      </footer>
+    </div>
+  );
+}
